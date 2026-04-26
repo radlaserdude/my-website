@@ -13,17 +13,12 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v4
+        - uses: actions/setup-node@v4
+  with:
+    node-version: 20
 
-      - name: Fetch reading
-        run: |
-          cat <<EOF > reading.json
-          {
-            "title": "Just For Today",
-            "text": "Tap to read today's message.",
-            "link": "https://www.jftna.org/jft/"
-          }
-          EOF
+- name: Fetch reading
+  run: node scripts/fetch-reading.js
 
       - name: Commit changes
         run: |
