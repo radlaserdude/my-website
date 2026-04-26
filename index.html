@@ -5,95 +5,118 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Just For Today</title>
 
+<link rel="manifest" href="manifest.json">
+
 <style>
+:root {
+  --bg: #ffffff;
+  --text: #111;
+  --card: #f4f4f4;
+}
+
+.dark {
+  --bg: #000;
+  --text: #00ffc8;
+  --card: #111;
+}
+
 body {
   margin: 0;
-  font-family: Arial;
-  background: black;
-  color: #00ffc8;
+  font-family: sans-serif;
+  background: var(--bg);
+  color: var(--text);
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   height: 100vh;
 }
 
 .card {
-  border: 2px solid #00ffc8;
-  border-radius: 15px;
-  padding: 25px;
+  border: 2px solid var(--text);
+  border-radius: 20px;
+  padding: 20px;
   width: 90%;
   max-width: 400px;
+  background: var(--card);
   text-align: center;
 }
 
 button {
   margin-top: 15px;
-  padding: 10px;
+  padding: 10px 20px;
+  border-radius: 10px;
   border: none;
-  border-radius: 8px;
-  background: #00ffc8;
-  color: black;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 16px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="card">
+<div class="card" id="card">
   <h1>Just For Today</h1>
-  <div id="date"></div>
-  <h3 id="title">Loading...</h3>
-  <p id="reading"></p>
-  <button onclick="loadReading()">Refresh</button>
+  <h3 id="date"></h3>
+  <p id="text">Loading...</p>
+  <button onclick="toggleTheme()">Toggle Theme</button>
 </div>
 
 <script>
-function getKey() {
-  const d = new Date();
-  const month = d.toLocaleString('default', { month: 'long' });
-  const day = d.getDate();
-  return `${month} ${day}`;
+// --- SIMPLE BUILT-IN DATA (no JSON file needed)
+const readings = {
+  "January 1": "Live just for today. Don't solve your whole life at once.",
+  "January 2": "Happiness is something you decide.",
+  "January 3": "Adjust yourself to what is.",
+  "April 25": "Accept what you cannot change and act on what you can.",
+  "December 31": "Reflect on growth and stay present."
+};
+
+// --- DATE HANDLING
+let currentDate = new Date(localStorage.getItem("date")) || new Date();
+
+function formatDate(d) {
+  return d.toLocaleDateString("en-US", { month: "long", day: "numeric" });
 }
 
-async function loadReading() {
-  const title = document.getElementById('title');
-  const reading = document.getElementById('reading');
-
-  title.innerText = "Loading...";
-  reading.innerText = "";
-
-  try {
-    // 🔥 CRITICAL FIX: force no cache
-    const res = await fetch('./reading.json?v=' + Date.now());
-
-    if (!res.ok) throw new Error("File not found");
-
-    const data = await res.json();
-    const key = getKey();
-
-    if (data[key]) {
-      title.innerText = data[key].title;
-      reading.innerText = data[key].text;
-    } else {
-      title.innerText = "No entry found";
-      reading.innerText = key;
-    }
-
-  } catch (err) {
-    console.log(err);
-    title.innerText = "Error loading data";
-    reading.innerText = "Check reading.json file";
-  }
+function render() {
+  let key = formatDate(currentDate);
+  document.getElementById("date").innerText = key;
+  document.getElementById("text").innerText =
+    readings[key] || "No reading yet.";
+  localStorage.setItem("date", currentDate);
 }
 
-document.getElementById('date').innerText =
-  new Date().toLocaleDateString(undefined, {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric'
-  });
+render();
 
-loadReading();
+// --- SWIPE SUPPORT
+let startX = 0;
+
+document.addEventListener("touchstart", e => startX = e.touches[0].clientX);
+
+document.addEventListener("touchend", e => {
+  let endX = e.changedTouches[0].clientX;
+  if (endX - startX > 50) currentDate.setDate(currentDate.getDate() - 1);
+  if (startX - endX > 50) currentDate.setDate(currentDate.getDate() + 1);
+  render();
+});
+
+// --- THEME
+if (localStorage.getItem("theme") === "dark") {
+  document.body.classList.add("dark");
+}
+
+function toggleTheme() {
+  document.body.classList.toggle("dark");
+  localStorage.setItem("theme",
+    document.body.classList.contains("dark") ? "dark" : "light"
+  );
+}
+
+// --- PWA SERVICE WORKER
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
 </script>
 
 </body>
