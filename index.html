@@ -6,48 +6,50 @@
 <title>Just For Today</title>
 
 <style>
-:root {
-  --bg: #ffffff;
-  --text: #111;
-  --card: #f4f4f4;
-}
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #000;
+    color: #00ffc8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
 
-.dark {
-  --bg: #000;
-  --text: #00ffc8;
-  --card: #111;
-}
+  .card {
+    border: 2px solid #00ffc8;
+    border-radius: 16px;
+    padding: 25px;
+    width: 90%;
+    max-width: 420px;
+    text-align: center;
+  }
 
-body {
-  margin: 0;
-  font-family: sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-}
+  h1 {
+    margin-bottom: 10px;
+  }
 
-.card {
-  border: 2px solid var(--text);
-  border-radius: 20px;
-  padding: 20px;
-  width: 90%;
-  max-width: 400px;
-  background: var(--card);
-  text-align: center;
-}
+  #date {
+    margin-bottom: 20px;
+    font-size: 16px;
+    opacity: 0.8;
+  }
 
-button {
-  margin-top: 15px;
-  padding: 10px 20px;
-  border-radius: 10px;
-  border: none;
-  background: var(--text);
-  color: var(--bg);
-  font-size: 16px;
-}
+  button {
+    margin-top: 20px;
+    padding: 12px 20px;
+    font-size: 16px;
+    background: #00ffc8;
+    color: black;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    opacity: 0.8;
+  }
 </style>
 </head>
 
@@ -55,76 +57,43 @@ button {
 
 <div class="card">
   <h1>Just For Today</h1>
-  <h3 id="date"></h3>
-  <p id="text">Loading...</p>
-  <button onclick="toggleTheme()">Toggle Theme</button>
+  <div id="date"></div>
+
+  <p>
+    Tap below to read today's official NA "Just For Today" message.
+  </p>
+
+  <button onclick="goToReading()">
+    Read Full JFT
+  </button>
 </div>
 
 <script>
-// --- BUILT-IN DATA
-const readings = {
-  "January 1": "Live just for today. Don't solve your whole life at once.",
-  "January 2": "Happiness is something you decide.",
-  "January 3": "Adjust yourself to what is.",
-  "April 25": "Accept what you cannot change and act on what you can.",
-  "December 31": "Reflect on growth and stay present."
-};
+function setDate() {
+  const today = new Date();
 
-// --- SAFE DATE LOAD (FIXES DEC 31 BUG)
-let saved = localStorage.getItem("date");
-let currentDate = saved ? new Date(saved) : new Date();
-if (isNaN(currentDate)) currentDate = new Date();
-
-// --- FORMAT DATE
-function formatDate(d) {
-  return d.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+  document.getElementById("date").innerText =
+    today.toLocaleDateString(undefined, {
+      weekday: "long",
+      month: "long",
+      day: "numeric"
+    });
 }
 
-// --- RENDER
-function render() {
-  let key = formatDate(currentDate);
-  document.getElementById("date").innerText = key;
-  document.getElementById("text").innerText =
-    readings[key] || "No reading yet.";
-  
-  localStorage.setItem("date", currentDate.toISOString());
+function goToReading() {
+  const today = new Date();
+
+  const dateStr =
+    today.getFullYear() + "-" +
+    String(today.getMonth() + 1).padStart(2, "0") + "-" +
+    String(today.getDate()).padStart(2, "0");
+
+  const url = "https://www.jftna.org/jft/" + dateStr;
+
+  window.open(url, "_blank");
 }
 
-render();
-
-// --- SWIPE
-let startX = 0;
-
-document.addEventListener("touchstart", e => {
-  startX = e.touches[0].clientX;
-});
-
-document.addEventListener("touchend", e => {
-  let endX = e.changedTouches[0].clientX;
-
-  if (endX - startX > 50) {
-    currentDate.setDate(currentDate.getDate() - 1);
-  }
-
-  if (startX - endX > 50) {
-    currentDate.setDate(currentDate.getDate() + 1);
-  }
-
-  render();
-});
-
-// --- THEME
-if (localStorage.getItem("theme") === "dark") {
-  document.body.classList.add("dark");
-}
-
-function toggleTheme() {
-  document.body.classList.toggle("dark");
-  localStorage.setItem(
-    "theme",
-    document.body.classList.contains("dark") ? "dark" : "light"
-  );
-}
+setDate();
 </script>
 
 </body>
