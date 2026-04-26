@@ -50,13 +50,6 @@
 </div>
 
 <script>
-function getTodayKey() {
-  const d = new Date();
-  const month = d.toLocaleString('default', { month: 'long' });
-  const day = d.getDate();
-  return `${month} ${day}`;
-}
-
 function setDate() {
   const d = new Date();
   document.getElementById('date').innerText =
@@ -67,28 +60,11 @@ function setDate() {
     });
 }
 
-// MAIN LOAD FUNCTION
 async function loadReading() {
   document.getElementById('title').innerText = "Loading...";
   document.getElementById('reading').innerText = "";
 
-  // 1️⃣ TRY LOCAL JSON FIRST (THIS FIXES YOUR PROBLEM)
-  try {
-    const res = await fetch('./reading.json');
-    const data = await res.json();
-
-    const todayKey = getTodayKey();
-
-    if (data[todayKey]) {
-      document.getElementById('title').innerText = data[todayKey].title;
-      document.getElementById('reading').innerText = data[todayKey].reading;
-      return;
-    }
-  } catch (e) {
-    console.log("Local JSON failed");
-  }
-
-  // 2️⃣ FALLBACK TO API
+  // 🔥 TRY API FIRST
   try {
     const res = await fetch('https://api.jftna.org/jft');
     const data = await res.json();
@@ -96,13 +72,14 @@ async function loadReading() {
     document.getElementById('title').innerText = data.title;
     document.getElementById('reading').innerText = data.reading;
 
+    // Save for offline
     localStorage.setItem("backup", JSON.stringify(data));
     return;
   } catch (e) {
     console.log("API failed");
   }
 
-  // 3️⃣ FINAL BACKUP (ALWAYS SHOWS SOMETHING)
+  // 🔁 FALLBACK (offline)
   const backup = localStorage.getItem("backup");
 
   if (backup) {
@@ -111,7 +88,7 @@ async function loadReading() {
     document.getElementById('reading').innerText = data.reading;
   } else {
     document.getElementById('title').innerText = "Offline";
-    document.getElementById('reading').innerText = "No data available yet.";
+    document.getElementById('reading').innerText = "Open once with internet to load.";
   }
 }
 
