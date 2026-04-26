@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Just For Today</title>
 
-<link rel="manifest" href="manifest.json">
-
 <style>
   body {
     margin: 0;
@@ -15,140 +13,110 @@
     justify-content: center;
     align-items: center;
     height: 100vh;
-    transition: 0.3s;
-  }
-
-  body.dark {
     background: #000;
     color: #00ffc8;
   }
 
-  body.light {
-    background: #f5f5f5;
-    color: #111;
-  }
-
   .card {
+    border: 2px solid #00ffc8;
     border-radius: 16px;
-    padding: 30px 20px;
+    padding: 25px;
     width: 90%;
     max-width: 420px;
     text-align: center;
-    box-shadow: 0 0 20px rgba(0,0,0,0.2);
   }
-
-  .dark .card { border: 2px solid #00ffc8; }
-  .light .card { border: 2px solid #333; }
 
   button {
     margin-top: 15px;
     padding: 10px 16px;
     border: none;
     border-radius: 8px;
-    cursor: pointer;
-  }
-
-  .dark button {
     background: #00ffc8;
     color: black;
-  }
-
-  .light button {
-    background: #333;
-    color: white;
+    cursor: pointer;
   }
 </style>
 </head>
 
-<body class="dark">
+<body>
 
-<div class="card" id="card">
+<div class="card">
   <h1>Just For Today</h1>
   <div id="date"></div>
   <h3 id="title">Loading...</h3>
   <p id="reading"></p>
 
-  <button onclick="toggleTheme()">Toggle Theme</button>
+  <button onclick="loadReading()">Refresh</button>
 </div>
 
 <script>
-let offset = 0;
-
-// Format date
-function getDate(offsetDays = 0) {
+function getTodayKey() {
   const d = new Date();
-  d.setDate(d.getDate() + offsetDays);
-  return d.toLocaleDateString(undefined, {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric'
-  });
+  const month = d.toLocaleString('default', { month: 'long' });
+  const day = d.getDate();
+  return `${month} ${day}`;
 }
 
-// Load reading
-async function load() {
+function setDate() {
+  const d = new Date();
+  document.getElementById('date').innerText =
+    d.toLocaleDateString(undefined, {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric'
+    });
+}
+
+// MAIN LOAD FUNCTION
+async function loadReading() {
   document.getElementById('title').innerText = "Loading...";
   document.getElementById('reading').innerText = "";
 
+  // 1️⃣ TRY LOCAL JSON FIRST (THIS FIXES YOUR PROBLEM)
+  try {
+    const res = await fetch('./reading.json');
+    const data = await res.json();
+
+    const todayKey = getTodayKey();
+
+    if (data[todayKey]) {
+      document.getElementById('title').innerText = data[todayKey].title;
+      document.getElementById('reading').innerText = data[todayKey].reading;
+      return;
+    }
+  } catch (e) {
+    console.log("Local JSON failed");
+  }
+
+  // 2️⃣ FALLBACK TO API
   try {
     const res = await fetch('https://api.jftna.org/jft');
     const data = await res.json();
 
     document.getElementById('title').innerText = data.title;
     document.getElementById('reading').innerText = data.reading;
+
+    localStorage.setItem("backup", JSON.stringify(data));
+    return;
   } catch (e) {
-    document.getElementById('title').innerText = "Offline mode";
-    document.getElementById('reading').innerText = localStorage.getItem("lastReading") || "No cached reading.";
+    console.log("API failed");
   }
-}
 
-// Save last reading
-async function cacheReading() {
-  try {
-    const res = await fetch('https://api.jftna.org/jft');
-    const data = await res.json();
-    localStorage.setItem("lastReading", data.reading);
-  } catch {}
-}
+  // 3️⃣ FINAL BACKUP (ALWAYS SHOWS SOMETHING)
+  const backup = localStorage.getItem("backup");
 
-// Swipe detection
-let startX = 0;
-document.getElementById("card").addEventListener("touchstart", e => {
-  startX = e.touches[0].clientX;
-});
-
-document.getElementById("card").addEventListener("touchend", e => {
-  let endX = e.changedTouches[0].clientX;
-  if (startX - endX > 50) {
-    offset++;
-  } else if (endX - startX > 50) {
-    offset--;
-  }
-  document.getElementById('date').innerText = getDate(offset);
-});
-
-// Theme toggle
-function toggleTheme() {
-  const body = document.body;
-  if (body.classList.contains("dark")) {
-    body.classList.remove("dark");
-    body.classList.add("light");
-    localStorage.setItem("theme", "light");
+  if (backup) {
+    const data = JSON.parse(backup);
+    document.getElementById('title').innerText = data.title + " (Offline)";
+    document.getElementById('reading').innerText = data.reading;
   } else {
-    body.classList.remove("light");
-    body.classList.add("dark");
-    localStorage.setItem("theme", "dark");
+    document.getElementById('title').innerText = "Offline";
+    document.getElementById('reading').innerText = "No data available yet.";
   }
 }
 
-// Load theme
-const savedTheme = localStorage.getItem("theme");
-if (savedTheme) document.body.className = savedTheme;
-
-// Init
-document.getElementById('date').innerText = getDate();
-load();
-cacheReading();
+setDate();
+loadReading();
 </script>
 
 </body>
