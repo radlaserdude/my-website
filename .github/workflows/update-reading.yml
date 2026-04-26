@@ -9,20 +9,20 @@ jobs:
   update:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write   # 🔥 THIS FIXES PUSH ERRORS
+
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4   # 🔥 updated version
 
       - name: Fetch reading
         run: |
-          curl -s https://www.jftna.org/jft/ -o reading.html
-
-          # Just save raw page for now (no parsing errors)
-          echo "{ \"title\": \"Just For Today\", \"text\": \"Open to read today's message.\", \"link\": \"https://www.jftna.org/jft/\" }" > reading.json
+          echo '{ "title": "Just For Today", "text": "Tap to read today’s message.", "link": "https://www.jftna.org/jft/" }' > reading.json
 
       - name: Commit changes
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add reading.json
-          git commit -m "Update daily reading" || echo "No changes"
+          git commit -m "Update reading" || echo "No changes"
           git push
