@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<body style="background:black;color:#00ffc8;font-family:sans-serif;text-align:center;padding:40px;">
+<h2>Building Full Year Data...</h2>
+<pre id="log"></pre>
+
+<script>
+const log = (msg) => document.getElementById("log").innerText += msg + "\n";
+
+async function getDay(date) {
+  const url = `https://api.allorigins.win/raw?url=https://api.jftna.org/jft?date=${date}`;
+  const res = await fetch(url);
+  return await res.json();
+}
+
+async function build() {
+  let data = {};
+  let start = new Date(2024, 0, 1);
+
+  for (let i = 0; i < 365; i++) {
+    let d = new Date(start);
+    d.setDate(start.getDate() + i);
+
+    let key = d.toLocaleString('default', { month: 'long' }) + " " + d.getDate();
+    let iso = d.toISOString().split('T')[0];
+
+    try {
+      let day = await getDay(iso);
+      data[key] = {
+        title: day.title,
+        text: day.reading
+      };
+      log("✔ " + key);
+    } catch {
+      log("✖ " + key);
+    }
+  }
+
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type : 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = "reading.json";
+  a.click();
+
+  log("DONE — file downloaded");
+}
+
+build();
+</script>
+</body>
+</html>
