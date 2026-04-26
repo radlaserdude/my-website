@@ -70,22 +70,20 @@ async function loadReading() {
   title.innerText = "Loading...";
   reading.innerText = "";
 
-  // Try API
   try {
-    const res = await fetch('https://api.jftna.org/jft');
+    // 🔥 FIX: using proxy to bypass CORS
+    const res = await fetch('https://api.allorigins.win/raw?url=https://api.jftna.org/jft');
     const data = await res.json();
 
-    title.innerText = data.title;
-    reading.innerText = data.reading;
+    title.innerText = data.title || "Just For Today";
+    reading.innerText = data.reading || "No reading available.";
 
-    // Save backup
     localStorage.setItem("jft_backup", JSON.stringify(data));
     return;
   } catch (err) {
-    console.log("API failed");
+    console.log("API failed", err);
   }
 
-  // Fallback
   const backup = localStorage.getItem("jft_backup");
 
   if (backup) {
@@ -94,11 +92,10 @@ async function loadReading() {
     reading.innerText = data.reading;
   } else {
     title.innerText = "Offline";
-    reading.innerText = "Open once with internet to load.";
+    reading.innerText = "Tap refresh with internet once.";
   }
 }
 
-// Init
 setDate();
 loadReading();
 </script>
