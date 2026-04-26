@@ -1,27 +1,118 @@
+HTML
 <!DOCTYPE html>
-<html>
-<body style="background:black;color:#00ffc8;text-align:center;margin-top:100px;font-family:Arial;">
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Just For Today</title>
 
-<h1>Just For Today</h1>
-<h3 id="title">Loading...</h3>
-<p id="reading"></p>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #000;
+    color: #00ffc8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .card {
+    border: 2px solid #00ffc8;
+    border-radius: 16px;
+    padding: 30px 20px;
+    width: 90%;
+    max-width: 420px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0,255,200,0.2);
+  }
+
+  h1 {
+    margin-bottom: 10px;
+    font-size: 28px;
+  }
+
+  #date {
+    font-size: 14px;
+    opacity: 0.7;
+    margin-bottom: 20px;
+  }
+
+  #title {
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+
+  #reading {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .loading {
+    opacity: 0.6;
+    font-style: italic;
+  }
+
+  button {
+    margin-top: 20px;
+    padding: 10px 16px;
+    border: none;
+    background: #00ffc8;
+    color: #000;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    opacity: 0.8;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h1>Just For Today</h1>
+  <div id="date"></div>
+
+  <div id="title" class="loading">Loading...</div>
+  <div id="reading"></div>
+
+  <button onclick="load()">Refresh</button>
+</div>
 
 <script>
+function formatDate() {
+  const today = new Date();
+  return today.toLocaleDateString(undefined, {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric'
+  });
+}
+
 async function load() {
+  document.getElementById('title').innerText = "Loading...";
+  document.getElementById('reading').innerText = "";
+  document.getElementById('title').classList.add("loading");
+
   try {
-    // This API returns today's NA "Just for Today"
     const res = await fetch('https://api.jftna.org/jft');
     const data = await res.json();
 
     document.getElementById('title').innerText = data.title;
     document.getElementById('reading').innerText = data.reading;
+    document.getElementById('title').classList.remove("loading");
 
   } catch (e) {
-    document.getElementById('title').innerText = "Error loading";
-    document.getElementById('reading').innerText = "Check connection or API.";
+    document.getElementById('title').innerText = "Unable to load reading";
+    document.getElementById('reading').innerText = "Check your connection.";
   }
 }
 
+// Set date + load
+document.getElementById('date').innerText = formatDate();
 load();
 </script>
 
