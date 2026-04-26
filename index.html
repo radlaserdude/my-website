@@ -6,38 +6,34 @@
 <title>Just For Today</title>
 
 <style>
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #000;
-    color: #00ffc8;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
+body {
+  margin: 0;
+  font-family: Arial;
+  background: black;
+  color: #00ffc8;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
 
-  .card {
-    border: 2px solid #00ffc8;
-    border-radius: 16px;
-    padding: 25px;
-    width: 90%;
-    max-width: 420px;
-    text-align: center;
-  }
+.card {
+  border: 2px solid #00ffc8;
+  border-radius: 15px;
+  padding: 25px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
 
-  h1 { margin-bottom: 10px; }
-  #date { margin-bottom: 15px; opacity: 0.8; }
-
-  button {
-    margin-top: 15px;
-    padding: 10px 16px;
-    border: none;
-    border-radius: 8px;
-    background: #00ffc8;
-    color: black;
-    cursor: pointer;
-  }
+button {
+  margin-top: 15px;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #00ffc8;
+  color: black;
+}
 </style>
 </head>
 
@@ -48,19 +44,15 @@
   <div id="date"></div>
   <h3 id="title">Loading...</h3>
   <p id="reading"></p>
-
   <button onclick="loadReading()">Refresh</button>
 </div>
 
 <script>
-function setDate() {
+function getKey() {
   const d = new Date();
-  document.getElementById('date').innerText =
-    d.toLocaleDateString(undefined, {
-      weekday: 'long',
-      month: 'long',
-      day: 'numeric'
-    });
+  const month = d.toLocaleString('default', { month: 'long' });
+  const day = d.getDate();
+  return `${month} ${day}`;
 }
 
 async function loadReading() {
@@ -71,32 +63,36 @@ async function loadReading() {
   reading.innerText = "";
 
   try {
-    // 🔥 FIX: using proxy to bypass CORS
-    const res = await fetch('https://api.allorigins.win/raw?url=https://api.jftna.org/jft');
+    // 🔥 CRITICAL FIX: force no cache
+    const res = await fetch('./reading.json?v=' + Date.now());
+
+    if (!res.ok) throw new Error("File not found");
+
     const data = await res.json();
+    const key = getKey();
 
-    title.innerText = data.title || "Just For Today";
-    reading.innerText = data.reading || "No reading available.";
+    if (data[key]) {
+      title.innerText = data[key].title;
+      reading.innerText = data[key].text;
+    } else {
+      title.innerText = "No entry found";
+      reading.innerText = key;
+    }
 
-    localStorage.setItem("jft_backup", JSON.stringify(data));
-    return;
   } catch (err) {
-    console.log("API failed", err);
-  }
-
-  const backup = localStorage.getItem("jft_backup");
-
-  if (backup) {
-    const data = JSON.parse(backup);
-    title.innerText = data.title + " (Offline)";
-    reading.innerText = data.reading;
-  } else {
-    title.innerText = "Offline";
-    reading.innerText = "Tap refresh with internet once.";
+    console.log(err);
+    title.innerText = "Error loading data";
+    reading.innerText = "Check reading.json file";
   }
 }
 
-setDate();
+document.getElementById('date').innerText =
+  new Date().toLocaleDateString(undefined, {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric'
+  });
+
 loadReading();
 </script>
 
