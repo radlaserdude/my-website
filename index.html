@@ -1,7 +1,5 @@
 <!DOCTYPE html>
-<html><h2 id="title">Loading...</h2>
-<p id="text">Fetching today's reading...</p>
-<button>Read Today's Entry</button>
+<html>
 <head>
   <title>Just For Today</title>
 
@@ -16,79 +14,54 @@
 
     h1 {
       color: #00ffcc;
-      margin-top: 40px;
     }
 
     .card {
-      background: #1c1c1c;
+      border: 1px solid #00ffcc;
       padding: 20px;
-      border-radius: 12px;
-      margin-top: 30px;
-      box-shadow: 0 0 10px rgba(0,255,204,0.2);
-    }
-
-    .date {
-      font-size: 14px;
-      color: #aaa;
-      margin-bottom: 15px;
-    }
-
-    a.button {
-      display: inline-block;
+      border-radius: 10px;
       margin-top: 20px;
-      padding: 12px 20px;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px 15px;
+      border: none;
       background: #00ffcc;
       color: black;
-      text-decoration: none;
-      border-radius: 8px;
       font-weight: bold;
-    }
-
-    a.button:hover {
-      background: #00ccaa;
+      border-radius: 5px;
     }
   </style>
 </head>
 
 <body>
-
   <h1>Just For Today</h1>
 
   <div class="card">
-  <div class="date" id="date"></div>
+    <h2 id="title">Loading...</h2>
+    <p id="text">Fetching today's reading...</p>
+    <button id="btn">Read Today's Entry</button>
+  </div>
 
-  <h2 id="title"></h2>
-  <p id="reading"></p>
-</div>
+  <script>
+    async function loadReading() {
+      try {
+        const res = await fetch("reading.json");
+        const data = await res.json();
 
-<script>
-const readings = {
-  "0-1": {
-    title: "New Beginnings",
-    text: "Today is a new chance to grow, improve, and move forward."
-  },
-  "0-2": {
-    title: "Stay Present",
-    text: "Focus on today. Don’t let yesterday or tomorrow control you."
-  },
-  "0-3": {
-    title: "Gratitude",
-    text: "Find something small to be thankful for today."
-  }
-};
+        document.getElementById("title").textContent = data.title;
+        document.getElementById("text").textContent = data.text;
 
-// Get today's key
-const today = new Date();
-const key = today.getMonth() + "-" + today.getDate();
+        document.getElementById("btn").onclick = () => {
+          window.location.href = data.link;
+        };
+      } catch (err) {
+        console.error("Error loading reading:", err);
+      }
+    }
 
-// Default if no entry yet
-const entry = readings[key] || {
-  title: "Just For Today",
-  text: "Stay positive and keep moving forward."
-};
-
-// Display
-document.getElementById("date").innerText = today.toDateString();
-document.getElementById("title").innerText = entry.title;
-document.getElementById("reading").innerText = entry.text;
-</script>
+    loadReading();
+  </script>
+</body>
+</html>
