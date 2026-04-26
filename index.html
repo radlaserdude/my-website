@@ -1,23 +1,76 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>My Website</title>
+  <title>Just For Today</title>
+
   <style>
     body {
       font-family: Arial;
       text-align: center;
       background: #111;
       color: white;
+      padding: 20px;
     }
+
     h1 {
       color: #00ffcc;
+      margin-top: 40px;
+    }
+
+    .card {
+      background: #1c1c1c;
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 30px;
+      box-shadow: 0 0 10px rgba(0,255,204,0.2);
+    }
+
+    .date {
+      font-size: 14px;
+      color: #aaa;
+      margin-bottom: 15px;
+    }
+
+    a.button {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 12px 20px;
+      background: #00ffcc;
+      color: black;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+
+    a.button:hover {
+      background: #00ccaa;
     }
   </style>
 </head>
+
 <body>
 
-  <h1>Welcome to My Website</h1>
-  <p>This is my first real site 🚀</p>
+  <h1>Just For Today</h1>
+
+  <div class="card">
+    <div class="date" id="date"></div>
+
+    <p>
+      Start your day with today's reading.
+      Tap below to view the latest "Just for Today".
+    </p>
+
+    <!-- 🔥 PUT YOUR REAL LINK HERE -->
+    <a class="button" href="https://example.com" target="_blank">
+      Read Today's Entry
+    </a>
+  </div>
+
+  <script>
+    const today = new Date();
+    document.getElementById("date").innerText =
+      today.toDateString();
+  </script>
 
 </body>
 </html>
