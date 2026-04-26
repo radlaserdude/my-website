@@ -14,12 +14,10 @@ jobs:
 
       - name: Fetch reading
         run: |
-          curl -s https://www.jftna.org/jft/ > page.html
+          curl -s https://www.jftna.org/jft/ -o reading.html
 
-          TITLE=$(grep -o '<h1>.*</h1>' page.html | sed 's/<[^>]*>//g')
-          TEXT=$(grep -o '<p>.*</p>' page.html | head -n 5 | sed 's/<[^>]*>//g' | tr '\n' ' ')
-
-          echo "{ \"title\": \"$TITLE\", \"text\": \"$TEXT\" }" > reading.json
+          # Just save raw page for now (no parsing errors)
+          echo "{ \"title\": \"Just For Today\", \"text\": \"Open to read today's message.\", \"link\": \"https://www.jftna.org/jft/\" }" > reading.json
 
       - name: Commit changes
         run: |
