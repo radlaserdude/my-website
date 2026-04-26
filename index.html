@@ -3,28 +3,26 @@
 <body style="background:black;color:#00ffc8;text-align:center;margin-top:100px;font-family:Arial;">
 
 <h1>Just For Today</h1>
-<p id="status">Tap to load</p>
-
-<button onclick="load()">Read Today's Entry</button>
-
+<h3 id="title">Loading...</h3>
 <p id="reading"></p>
 
 <script>
 async function load() {
-  document.getElementById('status').innerText = "Loading...";
-
   try {
     const res = await fetch('reading.json');
     const data = await res.json();
 
     const entry = data[Math.floor(Math.random() * data.length)];
 
-    document.getElementById('status').innerText = entry.title;
+    document.getElementById('title').innerText = entry.title;
     document.getElementById('reading').innerText = entry.text;
   } catch (e) {
-    document.getElementById('status').innerText = "Error loading file";
+    document.getElementById('title').innerText = "Error loading";
   }
 }
+
+// AUTO RUN
+load();
 </script>
 
 </body>
