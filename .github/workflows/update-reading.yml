@@ -10,14 +10,20 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: write   # 🔥 THIS FIXES PUSH ERRORS
+      contents: write
 
     steps:
-      - uses: actions/checkout@v4   # 🔥 updated version
+      - uses: actions/checkout@v4
 
       - name: Fetch reading
         run: |
-          echo '{ "title": "Just For Today", "text": "Tap to read today’s message.", "link": "https://www.jftna.org/jft/" }' > reading.json
+          cat <<EOF > reading.json
+          {
+            "title": "Just For Today",
+            "text": "Tap to read today's message.",
+            "link": "https://www.jftna.org/jft/"
+          }
+          EOF
 
       - name: Commit changes
         run: |
