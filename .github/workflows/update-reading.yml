@@ -1,0 +1,30 @@
+name: Update Daily Reading
+
+on:
+  schedule:
+    - cron: "0 10 * * *"
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Fetch reading
+        run: |
+          curl -s https://www.jftna.org/jft/ > page.html
+
+          TITLE=$(grep -o '<h1>.*</h1>' page.html | sed 's/<[^>]*>//g')
+          TEXT=$(grep -o '<p>.*</p>' page.html | head -n 5 | sed 's/<[^>]*>//g' | tr '\n' ' ')
+
+          echo "{ \"title\": \"$TITLE\", \"text\": \"$TEXT\" }" > reading.json
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add reading.json
+          git commit -m "Update daily reading" || echo "No changes"
+          git push
