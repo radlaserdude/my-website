@@ -9,19 +9,23 @@
 <script>
 async function load() {
   try {
-    const res = await fetch('reading.json');
-    const data = await res.json();
+    const today = new Date();
+    const key =
+      String(today.getMonth() + 1).padStart(2, '0') + "-" +
+      String(today.getDate()).padStart(2, '0');
 
-    const entry = data[Math.floor(Math.random() * data.length)];
+    const res = await fetch('readings/' + key + '.json');
+    const entry = await res.json();
 
     document.getElementById('title').innerText = entry.title;
     document.getElementById('reading').innerText = entry.text;
+
   } catch (e) {
-    document.getElementById('title').innerText = "Error loading";
+    document.getElementById('title').innerText = "Missing reading";
+    document.getElementById('reading').innerText = "Add today's file.";
   }
 }
 
-// AUTO RUN
 load();
 </script>
 
