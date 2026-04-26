@@ -53,24 +53,40 @@
   <h1>Just For Today</h1>
 
   <div class="card">
-    <div class="date" id="date"></div>
+  <div class="date" id="date"></div>
 
-    <p>
-      Start your day with today's reading.
-      Tap below to view the latest "Just for Today".
-    </p>
+  <h2 id="title"></h2>
+  <p id="reading"></p>
+</div>
 
-    <!-- 🔥 PUT YOUR REAL LINK HERE -->
-    <a class="button" href="https://example.com" target="_blank">
-      Read Today's Entry
-    </a>
-  </div>
+<script>
+const readings = {
+  "0-1": {
+    title: "New Beginnings",
+    text: "Today is a new chance to grow, improve, and move forward."
+  },
+  "0-2": {
+    title: "Stay Present",
+    text: "Focus on today. Don’t let yesterday or tomorrow control you."
+  },
+  "0-3": {
+    title: "Gratitude",
+    text: "Find something small to be thankful for today."
+  }
+};
 
-  <script>
-    const today = new Date();
-    document.getElementById("date").innerText =
-      today.toDateString();
-  </script>
+// Get today's key
+const today = new Date();
+const key = today.getMonth() + "-" + today.getDate();
 
-</body>
-</html>
+// Default if no entry yet
+const entry = readings[key] || {
+  title: "Just For Today",
+  text: "Stay positive and keep moving forward."
+};
+
+// Display
+document.getElementById("date").innerText = today.toDateString();
+document.getElementById("title").innerText = entry.title;
+document.getElementById("reading").innerText = entry.text;
+</script>
