@@ -44,22 +44,23 @@
     <button id="btn">Read Today's Entry</button>
   </div>
 
+
   <script>
-    async function loadReading() {
-      try {
-        const res = await fetch("reading.json");
-        const data = await res.json();
+async function loadReading() {
+  try {
+    const res = await fetch('reading.json');
+    const data = await res.json();
 
-        document.getElementById("title").textContent = data.title;
-        document.getElementById("text").textContent = data.text;
+    document.getElementById('title').innerText = data.title;
+    document.getElementById('text').innerText = data.text;
+    document.getElementById('link').href = data.link;
+  } catch (err) {
+    console.error('Failed to load reading:', err);
+  }
+}
 
-        document.getElementById("btn").onclick = () => {
-          window.location.href = data.link;
-        };
-      } catch (err) {
-        console.error("Error loading reading:", err);
-      }
-    }
+loadReading();
+</script>
 
     loadReading();
   </script>
