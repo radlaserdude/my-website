@@ -1,16 +1,26 @@
 const fs = require("fs");
+const https = require("https");
+
+function fetchPage(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, (res) => {
+      let data = "";
+
+      res.on("data", chunk => data += chunk);
+      res.on("end", () => resolve(data));
+    }).on("error", reject);
+  });
+}
 
 async function run() {
   try {
-    const res = await fetch("https://www.jftna.org/jft/");
-    const html = await res.text();
+    const html = await fetchPage("https://www.jftna.org/jft/");
 
-    // Grab the main reading text (simple scrape)
     const titleMatch = html.match(/<h1.*?>(.*?)<\/h1>/i);
     const textMatch = html.match(/<p>(.*?)<\/p>/i);
 
     const title = titleMatch ? titleMatch[1].replace(/<.*?>/g, "") : "Just For Today";
-    const text = textMatch ? textMatch[1].replace(/<.*?>/g, "") : "Stay positive and keep moving forward.";
+    const text = textMatch ? textMatch[1].replace(/<.*?>/g, "") : "Stay positive.";
 
     const data = {
       title,
@@ -21,7 +31,8 @@ async function run() {
     fs.writeFileSync("reading.json", JSON.stringify(data, null, 2));
     console.log("Reading updated");
   } catch (err) {
-    console.error("Error:", err);
+    console.error(err);
+    process.exit(1);
   }
 }
 
