@@ -9,12 +9,12 @@
   body {
     margin: 0;
     font-family: Arial, sans-serif;
+    background: #000;
+    color: #00ffc8;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background: #000;
-    color: #00ffc8;
   }
 
   .card {
@@ -25,6 +25,9 @@
     max-width: 420px;
     text-align: center;
   }
+
+  h1 { margin-bottom: 10px; }
+  #date { margin-bottom: 15px; opacity: 0.8; }
 
   button {
     margin-top: 15px;
@@ -61,37 +64,41 @@ function setDate() {
 }
 
 async function loadReading() {
-  document.getElementById('title').innerText = "Loading...";
-  document.getElementById('reading').innerText = "";
+  const title = document.getElementById('title');
+  const reading = document.getElementById('reading');
 
-  // 🔥 TRY API FIRST
+  title.innerText = "Loading...";
+  reading.innerText = "";
+
+  // Try API
   try {
     const res = await fetch('https://api.jftna.org/jft');
     const data = await res.json();
 
-    document.getElementById('title').innerText = data.title;
-    document.getElementById('reading').innerText = data.reading;
+    title.innerText = data.title;
+    reading.innerText = data.reading;
 
-    // Save for offline
-    localStorage.setItem("backup", JSON.stringify(data));
+    // Save backup
+    localStorage.setItem("jft_backup", JSON.stringify(data));
     return;
-  } catch (e) {
+  } catch (err) {
     console.log("API failed");
   }
 
-  // 🔁 FALLBACK (offline)
-  const backup = localStorage.getItem("backup");
+  // Fallback
+  const backup = localStorage.getItem("jft_backup");
 
   if (backup) {
     const data = JSON.parse(backup);
-    document.getElementById('title').innerText = data.title + " (Offline)";
-    document.getElementById('reading').innerText = data.reading;
+    title.innerText = data.title + " (Offline)";
+    reading.innerText = data.reading;
   } else {
-    document.getElementById('title').innerText = "Offline";
-    document.getElementById('reading').innerText = "Open once with internet to load.";
+    title.innerText = "Offline";
+    reading.innerText = "Open once with internet to load.";
   }
 }
 
+// Init
 setDate();
 loadReading();
 </script>
